@@ -48,36 +48,54 @@ const render = () => {
   // cube.rotation.y += 0.02;
 };
 
-let land, water;
+let land, water, character;
+const geoSize = { width: 0.5, height: 0.25, length: 0.5 };
+const charSize = { width: 0.125, height: 0.5, length: 0.125 };
+const charPos = { x: 0, y: 0.38, z: 0 };
 const draw = () => {
-  const geometry = new THREE.BoxGeometry(1, 0.25, 1);
+  const geometry = new THREE.BoxGeometry(
+    geoSize.width,
+    geoSize.height,
+    geoSize.length
+  );
+  const charGeo = new THREE.BoxGeometry(
+    charSize.width,
+    charSize.height,
+    charSize.length
+  );
   const landMaterial = new THREE.MeshLambertMaterial({
     color: 0x0d5c0c,
   });
   const waterMaterial = new THREE.MeshLambertMaterial({
     color: 0x1974a6,
   });
+
+  const charMaterial = new THREE.MeshLambertMaterial({
+    color: 0xff0000,
+  });
+
   const map = [
-    ["L", "L", "W", "L"],
-    ["L", "W", "L", "L"],
-    ["L", "W", "W", "L"],
+    ["W", "W", "L", "L", "L"],
+    ["L", "W", "W", "L", "L"],
+    ["L", "W", "W", "L", "L"],
+    ["L", "W", "W", "L", "L"],
+    ["L", "L", "W", "W", "L"],
+    ["L", "L", "L", "L", "L"],
+    ["L", "L", "L", "L", "L"],
   ];
 
   let counter = 1;
   let { x, y, z } = { x: 0, y: 0, z: 0 };
   map.forEach((row, i) => {
     row.forEach((col, j) => {
-      console.log(counter);
+      // console.log(counter);
 
       switch (j) {
         case 0:
           x = 0;
           break;
-        case 1:
-        case 2:
-        case 3:
-          x += 1;
-          break;
+        default:
+          x += geoSize.width;
       }
 
       if (col === "L") {
@@ -90,23 +108,40 @@ const draw = () => {
         water.position.set(x, y, z);
       }
 
-      if (counter % 4 === 0 && counter > 3) {
-        z += 1;
+      if (
+        counter % map[0].length === 0 &&
+        counter > map[0].length - 1
+      ) {
+        z += geoSize.width;
       }
 
       counter++;
     });
   });
 
-  // land = new THREE.Mesh(geometry, landMaterial);
-  // scene.add(land);
-
-  // water = new THREE.Mesh(geometry, waterMaterial);
-  // scene.add(water);
-  // water.position.set(-1, 0, 0);
+  character = new THREE.Mesh(charGeo, charMaterial);
+  scene.add(character);
+  character.position.set(charPos.x, charPos.y, charPos.z);
 
   camera.position.z = 5;
 };
+
+document.addEventListener("keydown", (event) => {
+  switch (event.key) {
+    case "w":
+      character.position.z -= 0.125;
+      break;
+    case "a":
+      character.position.x -= 0.125;
+      break;
+    case "s":
+      character.position.z += 0.125;
+      break;
+    case "d":
+      character.position.x += 0.125;
+      break;
+  }
+});
 
 init();
 draw();
